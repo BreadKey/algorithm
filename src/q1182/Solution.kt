@@ -7,19 +7,18 @@ class Solution {
     private var count = 0
     fun solution(number: Int, sum: Int, integers: IntArray): Int {
         count = 0
+        fun checkSum(currentSum: Int, index: Int) {
+            if (index == integers.size) return
 
-        checkSum(sum, 0, 0, integers)
+            if (currentSum + integers[index] == sum) count++
+
+            checkSum(currentSum, index + 1)
+            checkSum(currentSum + integers[index], index + 1)
+        }
+
+        checkSum(0, 0)
 
         return count
-    }
-
-    private fun checkSum(sum: Int, currentSum: Int, index: Int, integers: IntArray) {
-        if (index == integers.size) return
-
-        if (currentSum + integers[index] == sum) count++
-
-        checkSum(sum, currentSum, index + 1, integers)
-        checkSum(sum, currentSum + integers[index], index + 1, integers)
     }
 }
 

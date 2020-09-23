@@ -26,11 +26,11 @@ data class Offset(val x: Int, val y: Int) : Comparable<Offset> {
     override fun compareTo(other: Offset): Int = x.compareTo(other.x) + y.compareTo(other.y)
 }
 
-enum class Direction(val force: Offset, val isPositive: Boolean) {
-    Left(Offset(-1, 0), false),
-    Right(Offset(1, 0), true),
-    Up(Offset(0, 1), true),
-    Down(Offset(0, -1), false)
+enum class Direction(val force: Offset) {
+    Left(Offset(-1, 0)),
+    Right(Offset(1, 0)),
+    Up(Offset(0, 1)),
+    Down(Offset(0, -1))
 }
 
 data class TiltLog(
@@ -157,18 +157,10 @@ class BeadEscape2(rawBoard: Iterable<String>) {
         }
 
         if (nextBlueBeadPosition == nextRedBeadPosition) {
-            if (direction.isPositive) {
-                if (redBeadPosition < blueBeadPosition) {
-                    nextRedBeadPosition -= direction.force
-                } else {
-                    nextBlueBeadPosition -= direction.force
-                }
+            if (redBeadPosition * direction.force < blueBeadPosition * direction.force) {
+                nextRedBeadPosition -= direction.force
             } else {
-                if (redBeadPosition > blueBeadPosition) {
-                    nextRedBeadPosition -= direction.force
-                } else {
-                    nextBlueBeadPosition -= direction.force
-                }
+                nextBlueBeadPosition -= direction.force
             }
         }
 

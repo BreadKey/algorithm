@@ -1,7 +1,5 @@
 package samsung.q1
 
-import java.lang.Exception
-
 fun main() {
     val n = readLine()!!.split(" ").first().toInt()
 
@@ -52,7 +50,7 @@ class BeadEscape2(rawBoard: Iterable<String>) {
     private val board: Array<Array<Tile>>
     val startRedBeadPosition: Offset
     val startBlueBeadPosition: Offset
-    private val tiltLogCountMap = mutableMapOf<TiltLog, Int>()
+    private val stepsBeforeTiltsMap = mutableMapOf<TiltLog, Int>()
     private val tiltCountToHoleInList = mutableListOf<Int>()
 
     init {
@@ -92,30 +90,32 @@ class BeadEscape2(rawBoard: Iterable<String>) {
     }
 
     private fun tilt(
-        count: Int,
+        step: Int,
         direction: Direction,
         redBeadPosition: Offset = startRedBeadPosition,
         blueBeadPosition: Offset = startBlueBeadPosition
     ) {
         val tiltLog = TiltLog(redBeadPosition, blueBeadPosition, direction)
+        val currentStep = step + 1
 
-        val lastTiltCount = tiltLogCountMap[tiltLog]
+        if (canTilt(currentStep, tiltLog)) {
+            stepsBeforeTiltsMap[tiltLog] = currentStep
 
-        if (count == 10 || lastTiltCount != null && lastTiltCount <= count) return
-        else tiltLogCountMap[tiltLog] = count
+            val rollResult = roll(direction, redBeadPosition, blueBeadPosition)
 
-        val currentCount = count + 1
-        val rollResult = roll(direction, redBeadPosition, blueBeadPosition)
-
-        if (rollResult.holeIn) {
-            tiltCountToHoleInList.add(currentCount)
-            return
-        } else if (rollResult.canRole) {
-            Direction.values().forEach {
-                tilt(currentCount, it, rollResult.redBeadPosition, rollResult.blueBeadPosition)
+            if (rollResult.holeIn) {
+                tiltCountToHoleInList.add(currentStep)
+                return
+            } else if (rollResult.canRole) {
+                Direction.values().forEach {
+                    tilt(currentStep, it, rollResult.redBeadPosition, rollResult.blueBeadPosition)
+                }
             }
         }
     }
+
+    private fun canTilt(currentStep: Int, tiltLog: TiltLog): Boolean =
+        currentStep <= 10 && (stepsBeforeTiltsMap[tiltLog] ?: Int.MAX_VALUE) > currentStep
 
     fun roll(
         direction: Direction,

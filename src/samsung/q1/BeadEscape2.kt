@@ -29,7 +29,10 @@ data class Offset(val x: Int, val y: Int) : Comparable<Offset> {
 }
 
 enum class Direction(val force: Offset, val isPositive: Boolean) {
-    Left(Offset(-1, 0), false), Right(Offset(1, 0), true), Up(Offset(0, 1), true), Down(Offset(0, -1), false)
+    Left(Offset(-1, 0), false),
+    Right(Offset(1, 0), true),
+    Up(Offset(0, 1), true),
+    Down(Offset(0, -1), false)
 }
 
 data class TiltLog(

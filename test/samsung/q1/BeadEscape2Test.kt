@@ -40,7 +40,7 @@ class BeadEscape2Test {
         assertEquals(Offset(3, 3), beadEscape.startBlueBeadPosition)
 
         assertEquals(
-            1, beadEscape.solution()
+            1, beadEscape.solve()
         )
     }
 
@@ -75,7 +75,7 @@ class BeadEscape2Test {
             beadEscape.roll(Direction.Left, fourthRollResult.redBeadPosition, fourthRollResult.blueBeadPosition)
         assertEquals(RollResult(Offset(1, 1), Offset(5, 5), canRole = true, holeIn = true), fifthResult)
 
-        assertEquals(5, beadEscape.solution())
+        assertEquals(5, beadEscape.solve())
     }
 
     @Test
@@ -327,6 +327,6 @@ class BeadEscape2Test {
     private fun assertSolution(result: Int, input: String) {
         val beadEscape = BeadEscape2(input.split("\n"))
 
-        assertEquals(result, beadEscape.solution())
+        assertEquals(result, beadEscape.solve())
     }
 }

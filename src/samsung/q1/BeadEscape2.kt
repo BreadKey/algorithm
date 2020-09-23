@@ -11,7 +11,7 @@ fun main() {
 
     val beadEscape = BeadEscape2(input)
 
-    println(beadEscape.solution())
+    println(beadEscape.solve())
 }
 
 enum class Tile(val char: Char) {
@@ -78,7 +78,7 @@ class BeadEscape2(rawBoard: Iterable<String>) {
         startBlueBeadPosition = Offset(blueBeadX, blueBeadY)
     }
 
-    fun solution(): Int {
+    fun solve(): Int {
         val n = board.size
         val m = board.first().size
         assert(n in 3..10 && m in 3..10)
@@ -106,7 +106,8 @@ class BeadEscape2(rawBoard: Iterable<String>) {
 
             if (rollResult.holeIn) {
                 if (minStepUntilHoleIn == null ||
-                    minStepUntilHoleIn!! > currentStep) {
+                    minStepUntilHoleIn!! > currentStep
+                ) {
                     minStepUntilHoleIn = currentStep
                 }
             } else if (rollResult.canRole) {
@@ -119,7 +120,7 @@ class BeadEscape2(rawBoard: Iterable<String>) {
 
     private fun canTilt(currentStep: Int, tiltLog: TiltLog): Boolean =
         currentStep < minStepUntilHoleIn ?: 11 &&
-                (stepsBeforeTiltsMap[tiltLog] ?: Int.MAX_VALUE) > currentStep
+                currentStep < (stepsBeforeTiltsMap[tiltLog] ?: Int.MAX_VALUE)
 
     fun roll(
         direction: Direction,
@@ -171,11 +172,13 @@ class BeadEscape2(rawBoard: Iterable<String>) {
             }
         }
 
+        val isPositionChanged = nextRedBeadPosition != redBeadPosition ||
+                nextBlueBeadPosition != blueBeadPosition
+
         return RollResult(
             nextRedBeadPosition,
             nextBlueBeadPosition,
-            canRole = nextRedBeadPosition != redBeadPosition ||
-                    nextBlueBeadPosition != blueBeadPosition,
+            canRole = isPositionChanged,
             holeIn = false
         )
     }

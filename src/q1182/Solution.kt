@@ -22,6 +22,10 @@ class Solution {
     }
 }
 
+class DfsGraph(val depth: Int) {
+
+}
+
 fun main() {
     val solution = Solution()
     val numberAndSum = readLine()!!.split(" ").map { it.toInt() }

@@ -32,8 +32,8 @@ data class Offset(val x: Int, val y: Int) {
 }
 
 
-fun <T> Array<Array<T>>.getValueAt(point: Offset) = this[point.y][point.x]
-fun <T> Array<Array<T>>.setValueAt(point: Offset, value: T) {
+fun Array<IntArray>.getValueAt(point: Offset) = this[point.y][point.x]
+fun Array<IntArray>.setValueAt(point: Offset, value: Int) {
     this[point.y][point.x] = value
 }
 
@@ -42,12 +42,12 @@ class Game2048(rawBoard: Iterable<String>) {
         const val BLANK = 0
     }
 
-    val initialBoard: Array<Array<Int>>
+    val initialBoard: Array<IntArray>
     val boardSize: Int
 
     init {
         initialBoard = rawBoard.reversed().map {
-            it.split(' ').map { s -> s.toInt() }.toTypedArray()
+            it.split(' ').map { s -> s.toInt() }.toIntArray()
         }.toTypedArray()
 
         assert(initialBoard.size == initialBoard.first().size)
@@ -66,7 +66,7 @@ class Game2048(rawBoard: Iterable<String>) {
         return maxValue ?: -1
     }
 
-    private fun findMaxValue(maxStep: Int, step: Int, board: Array<Array<Int>>, direction: Direction) {
+    private fun findMaxValue(maxStep: Int, step: Int, board: Array<IntArray>, direction: Direction) {
         val nextBoard = scroll(board, direction)
 
         val currentStep = step + 1
@@ -85,9 +85,9 @@ class Game2048(rawBoard: Iterable<String>) {
         }
     }
 
-    fun scroll(board: Array<Array<Int>>, direction: Direction): Array<Array<Int>> {
-        val nextBoard = Array<Array<Int>>(boardSize) {
-            Array<Int>(boardSize) {
+    fun scroll(board: Array<IntArray>, direction: Direction): Array<IntArray> {
+        val nextBoard = Array<IntArray>(boardSize) {
+            IntArray(boardSize) {
                 BLANK
             }
         }
@@ -126,7 +126,7 @@ class Game2048(rawBoard: Iterable<String>) {
         return nextBoard
     }
 
-    fun canGo(currentValue: Int, nextPoint: Offset, nextBoard: Array<Array<Int>>, beforeMerged: Boolean, isMerged: Boolean): Boolean = when {
+    fun canGo(currentValue: Int, nextPoint: Offset, nextBoard: Array<IntArray>, beforeMerged: Boolean, isMerged: Boolean): Boolean = when {
         nextPoint.x !in 0 until boardSize || nextPoint.y !in 0 until boardSize -> false
         else -> when (nextBoard.getValueAt(nextPoint)) {
             BLANK -> true

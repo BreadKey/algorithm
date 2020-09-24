@@ -24,6 +24,8 @@ data class Offset(val x: Int, val y: Int) : Comparable<Offset> {
     operator fun times(other: Offset) = Offset(x * other.x, y * other.y)
 
     override fun compareTo(other: Offset): Int = x.compareTo(other.x) + y.compareTo(other.y)
+
+    fun isBefore(other: Offset, direction: Direction): Boolean = this * direction.force < other * direction.force
 }
 
 enum class Direction(val force: Offset) {
@@ -120,7 +122,7 @@ class BeadEscape2(rawBoard: Iterable<String>) {
 
     private fun canTilt(currentStep: Int, tiltLog: TiltLog): Boolean =
         currentStep < minStepUntilHoleIn ?: 11 &&
-                currentStep < (stepsBeforeTiltsMap[tiltLog] ?: Int.MAX_VALUE)
+            currentStep < (stepsBeforeTiltsMap[tiltLog] ?: Int.MAX_VALUE)
 
     fun roll(
         direction: Direction,
@@ -157,7 +159,7 @@ class BeadEscape2(rawBoard: Iterable<String>) {
         }
 
         if (nextBlueBeadPosition == nextRedBeadPosition) {
-            if (redBeadPosition * direction.force < blueBeadPosition * direction.force) {
+            if (redBeadPosition.isBefore(blueBeadPosition, direction)) {
                 nextRedBeadPosition -= direction.force
             } else {
                 nextBlueBeadPosition -= direction.force
@@ -165,7 +167,7 @@ class BeadEscape2(rawBoard: Iterable<String>) {
         }
 
         val isPositionChanged = nextRedBeadPosition != redBeadPosition ||
-                nextBlueBeadPosition != blueBeadPosition
+            nextBlueBeadPosition != blueBeadPosition
 
         return RollResult(
             nextRedBeadPosition,

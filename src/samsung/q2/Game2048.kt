@@ -9,7 +9,7 @@ fun main() {
         input.add(readLine()!!)
     }
 
-    print(Game2048(input).solve())
+    println(Game2048(input).solve())
 }
 
 enum class Direction(val vector: Offset) {

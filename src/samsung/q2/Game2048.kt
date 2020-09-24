@@ -124,8 +124,8 @@ class Game2048(rawBoard: Iterable<String>) {
     }
 
     fun scroll(scrollCondition: ScrollCondition): ScrollResult {
-        return scrollResultCache[scrollCondition] ?: scroll(scrollCondition.board, scrollCondition.direction).apply {
-            scrollResultCache[scrollCondition] = this
+        return scrollResultCache[scrollCondition] ?: scroll(scrollCondition.board, scrollCondition.direction).also {
+            scrollResultCache[scrollCondition] = it
         }
     }
 

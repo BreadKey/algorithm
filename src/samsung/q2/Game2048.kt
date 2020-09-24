@@ -41,6 +41,7 @@ class Game2048(rawBoard: Iterable<String>) {
         assert(initialBoard.size == initialBoard.first().size)
 
         boardSize = initialBoard.size
+        assert(boardSize in 1..20)
     }
 
     private var maxValue: Int? = null

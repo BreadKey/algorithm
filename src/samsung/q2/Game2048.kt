@@ -66,17 +66,20 @@ class Game2048(rawBoard: Iterable<String>) {
         return maxValue ?: -1
     }
 
-    private fun findMaxValue(maxStep: Int, currentStep: Int, board: Array<Array<Int>>, direction: Direction) {
+    private fun findMaxValue(maxStep: Int, step: Int, board: Array<Array<Int>>, direction: Direction) {
         val nextBoard = scroll(board, direction)
+
+        val currentStep = step + 1
 
         if (currentStep < maxStep) {
             Direction.values().forEach {
-                findMaxValue(maxStep, currentStep + 1, nextBoard, it)
+                findMaxValue(maxStep, currentStep, nextBoard, it)
             }
         } else {
             val currentMaxValue = nextBoard.map { it.max()!! }.max()!!
 
             if (maxValue == null || maxValue!! < currentMaxValue) {
+
                 maxValue = currentMaxValue
             }
         }
@@ -96,20 +99,25 @@ class Game2048(rawBoard: Iterable<String>) {
         }
 
         for (crossAxisValue in range) {
+            var beforeMerged = false
             for (mainAxisValue in range) {
                 var currentPoint = Offset.from(direction, mainAxisValue, crossAxisValue)
                 var currentValue = board.getValueAt(currentPoint)
                 if (currentValue == BLANK) continue
 
-                while (canGo(currentValue, currentPoint + direction.vector, nextBoard)) {
+                var isMerged = false
+                while (canGo(currentValue, currentPoint + direction.vector, nextBoard, beforeMerged, isMerged)) {
                     nextBoard.setValueAt(currentPoint, BLANK)
 
                     currentPoint += direction.vector
 
                     if (currentValue == nextBoard.getValueAt(currentPoint)) {
                         currentValue *= 2
+                        isMerged = true
                     }
                 }
+
+                beforeMerged = isMerged
 
                 nextBoard.setValueAt(currentPoint, currentValue)
             }
@@ -118,10 +126,11 @@ class Game2048(rawBoard: Iterable<String>) {
         return nextBoard
     }
 
-    fun canGo(currentValue: Int, nextPoint: Offset, nextBoard: Array<Array<Int>>): Boolean = when {
+    fun canGo(currentValue: Int, nextPoint: Offset, nextBoard: Array<Array<Int>>, beforeMerged: Boolean, isMerged: Boolean): Boolean = when {
         nextPoint.x !in 0 until boardSize || nextPoint.y !in 0 until boardSize -> false
         else -> when (nextBoard.getValueAt(nextPoint)) {
-            BLANK, currentValue -> true
+            BLANK -> true
+            currentValue -> !beforeMerged && !isMerged
             else -> false
         }
     }

@@ -19,21 +19,21 @@ class Game2048Test {
             arrayOf(2, 2, 2),
             arrayOf(4, 4, 4),
             arrayOf(8, 8, 8)
-        ).reversedArray(), boardAfterScrollUp)
+        ).reversedArray(), boardAfterScrollUp.board)
 
         val boardAfterScrollDown = game.scroll(game.initialBoard, Direction.Down)
         assertArrayEquals(arrayOf(
             arrayOf(2, 2, 2),
             arrayOf(4, 4, 4),
             arrayOf(8, 8, 8)
-        ).reversedArray(), boardAfterScrollDown)
+        ).reversedArray(), boardAfterScrollDown.board)
 
         val boardAfterScrollRight = game.scroll(game.initialBoard, Direction.Right)
         assertArrayEquals(arrayOf(
             arrayOf(0, 2, 4),
             arrayOf(0, 4, 8),
             arrayOf(0, 8, 16)
-        ).reversedArray(), boardAfterScrollRight)
+        ).reversedArray(), boardAfterScrollRight.board)
 
         assertEquals(16, game.solve())
     }
@@ -67,7 +67,7 @@ class Game2048Test {
                 arrayOf(0, 0, 0, 0),
                 arrayOf(0, 0, 0, 0)
             ).reversedArray(),
-            scrollUpResult
+            scrollUpResult.board
         )
     }
 
@@ -91,10 +91,10 @@ class Game2048Test {
                 arrayOf(0, 0, 0, 0),
                 arrayOf(0, 0, 0, 0)
             ).reversedArray(),
-            scrollUpResult
+            scrollUpResult.board
         )
 
-        val scrollUpTwiceResult = game.scroll(scrollUpResult, Direction.Up)
+        val scrollUpTwiceResult = game.scroll(scrollUpResult.board, Direction.Up)
 
         assertArrayEquals(
             arrayOf(
@@ -103,7 +103,7 @@ class Game2048Test {
                 arrayOf(0, 0, 0, 0),
                 arrayOf(0, 0, 0, 0)
             ).reversedArray(),
-            scrollUpTwiceResult
+            scrollUpTwiceResult.board
         )
     }
 
@@ -127,7 +127,7 @@ class Game2048Test {
                 arrayOf(16, 0, 0, 0),
                 arrayOf(2, 0, 0, 0)
             ).reversedArray(),
-            scrollUpResult
+            scrollUpResult.board
         )
     }
 
@@ -149,7 +149,7 @@ class Game2048Test {
                 arrayOf(0, 0, 0, 0),
                 arrayOf(0, 0, 0, 0)
             ).reversedArray(),
-            scrollLefResult
+            scrollLefResult.board
         )
     }
 
@@ -207,7 +207,7 @@ class Game2048Test {
         val game = Game2048(board)
         val scrollRight = game.scroll(game.initialBoard, Direction.Right)
 
-        assertEquals(4, scrollRight.getValueAt(Offset(2, 2)))
-        assertEquals(4, scrollRight.getValueAt(Offset(1, 2)))
+        assertEquals(4, scrollRight.board.getValueAt(Offset(2, 2)))
+        assertEquals(4, scrollRight.board.getValueAt(Offset(1, 2)))
     }
 }

@@ -1,5 +1,7 @@
 package samsung.q2
 
+import kotlin.math.max
+
 fun main() {
     val boardSize = readLine()!!.toInt()
 
@@ -31,6 +33,45 @@ data class Offset(val x: Int, val y: Int) {
     }
 }
 
+data class ScrollCondition(val board: Array<IntArray>, val direction: Direction) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ScrollCondition
+
+        if (!board.contentDeepEquals(other.board)) return false
+        if (direction != other.direction) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = board.contentDeepHashCode()
+        result = 31 * result + direction.hashCode()
+        return result
+    }
+}
+
+data class ScrollResult(val board: Array<IntArray>, val maxValue: Int) {
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (javaClass != other?.javaClass) return false
+
+        other as ScrollResult
+
+        if (!board.contentDeepEquals(other.board)) return false
+        if (maxValue != other.maxValue) return false
+
+        return true
+    }
+
+    override fun hashCode(): Int {
+        var result = board.contentDeepHashCode()
+        result = 31 * result + maxValue
+        return result
+    }
+}
 
 fun Array<IntArray>.getValueAt(point: Offset) = this[point.y][point.x]
 fun Array<IntArray>.setValueAt(point: Offset, value: Int) {
@@ -45,6 +86,8 @@ class Game2048(rawBoard: Iterable<String>) {
     val initialBoard: Array<IntArray>
     val boardSize: Int
 
+    private val scrollResultCache = mutableMapOf<ScrollCondition, ScrollResult>()
+
     init {
         initialBoard = rawBoard.reversed().map {
             it.split(' ').map { s -> s.toInt() }.toIntArray()
@@ -56,36 +99,39 @@ class Game2048(rawBoard: Iterable<String>) {
         assert(boardSize in 1..20)
     }
 
-    private var maxValue: Int? = null
+    private var maxValue: Int = 0
 
     fun solve(): Int {
         Direction.values().forEach {
             findMaxValue(5, 0, initialBoard, it)
         }
 
-        return maxValue ?: -1
+        return maxValue
     }
 
     private fun findMaxValue(maxStep: Int, step: Int, board: Array<IntArray>, direction: Direction) {
-        val nextBoard = scroll(board, direction)
+        val scrollResult = scroll(ScrollCondition(board, direction))
 
         val currentStep = step + 1
 
         if (currentStep < maxStep) {
             Direction.values().forEach {
-                findMaxValue(maxStep, currentStep, nextBoard, it)
+                findMaxValue(maxStep, currentStep, scrollResult.board, it)
             }
         } else {
-            val currentMaxValue = nextBoard.map { it.max()!! }.max()!!
-
-            if (maxValue == null || maxValue!! < currentMaxValue) {
-
-                maxValue = currentMaxValue
-            }
+            maxValue = max(maxValue, scrollResult.maxValue)
         }
     }
 
-    fun scroll(board: Array<IntArray>, direction: Direction): Array<IntArray> {
+    fun scroll(scrollCondition: ScrollCondition): ScrollResult {
+        return scrollResultCache[scrollCondition] ?: scroll(scrollCondition.board, scrollCondition.direction).apply {
+            scrollResultCache[scrollCondition] = this
+        }
+    }
+
+    fun scroll(board: Array<IntArray>, direction: Direction): ScrollResult {
+        var maxValueAfterScroll = 0
+
         val nextBoard = Array<IntArray>(boardSize) {
             IntArray(boardSize) {
                 BLANK
@@ -120,10 +166,12 @@ class Game2048(rawBoard: Iterable<String>) {
                 beforeMerged = isMerged
 
                 nextBoard.setValueAt(currentPoint, currentValue)
+
+                maxValueAfterScroll = max(maxValueAfterScroll, currentValue)
             }
         }
 
-        return nextBoard
+        return ScrollResult(nextBoard, maxValueAfterScroll)
     }
 
     fun canGo(currentValue: Int, nextPoint: Offset, nextBoard: Array<IntArray>, beforeMerged: Boolean, isMerged: Boolean): Boolean = when {

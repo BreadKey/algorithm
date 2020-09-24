@@ -1,5 +1,17 @@
 package samsung.q2
 
+fun main() {
+    val boardSize = readLine()!!.toInt()
+
+    val input = mutableListOf<String>()
+
+    repeat(boardSize) {
+        input.add(readLine()!!)
+    }
+
+    print(Game2048(input).solve())
+}
+
 enum class Direction(val vector: Offset) {
     Left(Offset(-1, 0)), Right(Offset(1, 0)), Up(Offset(0, 1)), Down(Offset(0, -1))
 }

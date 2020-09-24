@@ -39,7 +39,11 @@ class Game2048Test {
     }
 
     @Test
-    fun example2() {
+    fun testOnly1Block() {
+        val block = listOf("4")
 
+        val game = Game2048(block)
+
+        assertEquals(4, game.solve())
     }
 }

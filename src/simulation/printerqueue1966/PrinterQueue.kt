@@ -1,4 +1,4 @@
-package printerqueue1966
+package simulation.printerqueue1966
 
 import java.util.*
 

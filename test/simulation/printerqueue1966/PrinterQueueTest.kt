@@ -1,4 +1,4 @@
-package printerqueue1966
+package simulation.printerqueue1966
 
 import org.junit.Assert.*
 import org.junit.Test
@@ -28,5 +28,10 @@ class PrinterQueueTest {
         }
 
         return count
+    }
+
+    @Test
+    fun cacheTet() {
+
     }
 }

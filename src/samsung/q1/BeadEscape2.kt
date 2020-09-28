@@ -35,7 +35,7 @@ enum class Direction(val force: Offset) {
     Down(Offset(0, -1))
 }
 
-data class TiltLog(
+data class TiltCondition(
     val readBeadPosition: Offset,
     val blueBeadPosition: Offset,
     val direction: Direction
@@ -52,7 +52,7 @@ class BeadEscape2(rawBoard: Iterable<String>) {
     private val board: Array<Array<Tile>>
     val startRedBeadPosition: Offset
     val startBlueBeadPosition: Offset
-    private val stepsBeforeTiltsMap = mutableMapOf<TiltLog, Int>()
+    private val tiltCache = mutableMapOf<TiltCondition, Int>()
 
     private var minStepUntilHoleIn: Int? = null
 
@@ -98,11 +98,11 @@ class BeadEscape2(rawBoard: Iterable<String>) {
         redBeadPosition: Offset = startRedBeadPosition,
         blueBeadPosition: Offset = startBlueBeadPosition
     ) {
-        val tiltLog = TiltLog(redBeadPosition, blueBeadPosition, direction)
+        val tiltLog = TiltCondition(redBeadPosition, blueBeadPosition, direction)
         val currentStep = step + 1
 
         if (canTilt(currentStep, tiltLog)) {
-            stepsBeforeTiltsMap[tiltLog] = currentStep
+            tiltCache[tiltLog] = currentStep
 
             val rollResult = roll(direction, redBeadPosition, blueBeadPosition)
 
@@ -120,9 +120,9 @@ class BeadEscape2(rawBoard: Iterable<String>) {
         }
     }
 
-    private fun canTilt(currentStep: Int, tiltLog: TiltLog): Boolean =
+    private fun canTilt(currentStep: Int, tiltCondition: TiltCondition): Boolean =
         currentStep < minStepUntilHoleIn ?: 11 &&
-            currentStep < (stepsBeforeTiltsMap[tiltLog] ?: Int.MAX_VALUE)
+            currentStep < (tiltCache[tiltCondition] ?: Int.MAX_VALUE)
 
     fun roll(
         direction: Direction,

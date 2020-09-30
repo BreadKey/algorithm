@@ -122,9 +122,6 @@ class MaxCalculatorByTetromino(val map: Array<IntArray>) {
                     for (direction in Direction.values()) {
                         val tetrominoPoints = tetromino.build(startPoint, direction, bounds)
 
-                        if (tetrominoPoints.isEmpty())
-                            continue
-
                         var sum = 0
 
                         for (point in tetrominoPoints) {

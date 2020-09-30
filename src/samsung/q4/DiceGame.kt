@@ -1,29 +1,27 @@
 package samsung.q4
 
 fun main() {
-    readLine()!!.split(' ').map { it.toInt() }.let { firstLine ->
-        val map = Array(firstLine[0]) {
-            IntArray(firstLine[1])
-        }
-
-        val dicePosition = Offset(firstLine[3], firstLine[2])
-        val commands = Array<Direction>(firstLine[4]) {
-            Direction.Down
-        }
-
-        repeat(map.size) { y ->
-            map[y] = readLine()!!.split(' ').map { it.toInt() }.toIntArray()
-        }
-
-        readLine()!!.split(' ').map { it.toInt() }.let { lastLine ->
-            repeat(commands.size) { i ->
-                commands[i] = Direction.values()[lastLine[i] - 1]
-            }
-        }
-
-        val game = DiceGame(map = map, dicePosition = dicePosition, commands = commands)
-        game.startGame()
+    val firstLine = readLine()!!.split(' ').map { it.toInt() }
+    val map = Array(firstLine[0]) {
+        IntArray(firstLine[1])
     }
+
+    val dicePosition = Offset(firstLine[3], firstLine[2])
+    val commands = Array<Direction>(firstLine[4]) {
+        Direction.Down
+    }
+
+    repeat(map.size) { y ->
+        map[y] = readLine()!!.split(' ').map { it.toInt() }.toIntArray()
+    }
+
+    val lastLine = readLine()!!.split(' ').map { it.toInt() }
+    repeat(commands.size) { i ->
+        commands[i] = Direction.values()[lastLine[i] - 1]
+    }
+
+    val game = DiceGame(map = map, dicePosition = dicePosition, commands = commands)
+    game.startGame()
 }
 
 data class Offset(val x: Int, val y: Int) {

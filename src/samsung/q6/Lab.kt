@@ -21,11 +21,26 @@ class Lab {
 
             map.forEachIndexed { y, row ->
                 row.forEachIndexed { x, tile ->
-                    if (tile == VIRUS) {
-                        if (x > 0 && setVirusIfNotWall(map, x - 1, y)) infectedSpaceCount++
-                        if (x < width - 1 && setVirusIfNotWall(map, x + 1, y)) infectedSpaceCount++
-                        if (y > 0 && setVirusIfNotWall(map, x, y - 1)) infectedSpaceCount++
-                        if (y < height - 1 && setVirusIfNotWall(map, x, y + 1)) infectedSpaceCount++
+                    if (tile == SPACE) {
+                        if (x > 0 && map.getTileAt(x - 1, y) == VIRUS) {
+                            infectedSpaceCount++
+                            map.setTileAt(x, y, VIRUS)
+                        }
+
+                        if (x < width - 1 && map.getTileAt(x + 1, y) == VIRUS) {
+                            infectedSpaceCount++
+                            map.setTileAt(x, y, VIRUS)
+                        }
+
+                        if (y > 0 && map.getTileAt(x, y - 1) == VIRUS) {
+                            infectedSpaceCount++
+                            map.setTileAt(x, y, VIRUS)
+                        }
+
+                        if (y < height - 1 && map.getTileAt(x, y + 1) == VIRUS) {
+                            infectedSpaceCount++
+                            map.setTileAt(x, y, VIRUS)
+                        }
                     }
                 }
             }
@@ -39,15 +54,6 @@ class Lab {
     }
 
     private fun Array<IntArray>.getTileAt(x: Int, y: Int): Int = this[y][x]
-
-    private fun setVirusIfNotWall(map: Array<IntArray>, x: Int, y: Int): Boolean {
-        if (map.getTileAt(x, y) == SPACE) {
-            map.setTileAt(x, y, VIRUS)
-            return true
-        }
-
-        return false
-    }
 
     fun calculateMaxSpaceCount(map: Array<IntArray>): Int {
         val spacePoints = LinkedList<Offset>()

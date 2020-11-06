@@ -1,7 +1,11 @@
 package samsung.q5
 
 import org.junit.Test
+import java.util.*
+import kotlin.math.min
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class TetrominoTest {
     @Test

@@ -35,7 +35,7 @@ def solution(lines: List[str]) -> int:
             if window_start <= job[1] <= window_end or \
                 window_start <= job[0] <= window_end or \
                     job[0] <= window_start and job[1] >= window_end:
-                count = count + 1
+                count += 1
 
         if count > max:
             max = count

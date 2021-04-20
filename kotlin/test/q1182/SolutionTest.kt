@@ -15,4 +15,11 @@ class SolutionTest {
     fun only1() {
         assertEquals(1, solution.solution(5, 5, intArrayOf(-10, -11, -13, -14, 5)))
     }
+
+    @Test
+
+    fun a() {
+        val two :Int= 2
+        assertEquals(1.5f, 3f / two)
+    }
 }

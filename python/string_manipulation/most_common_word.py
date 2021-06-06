@@ -1,12 +1,14 @@
 import re
 from typing import Dict, List
 
-def of(paragraph: str, banned: List[str] = []) -> str :
-    cleaned: str = re.sub('|'.join(banned + [r'[^a-z ]' ]), '', paragraph.lower())
+
+def of(paragraph: str, banned: List[str] = []) -> str:
+    cleaned: str = re.sub(
+        '|'.join(banned + [r'[^a-z ]']), '', paragraph.lower())
 
     word_map: Dict[str, int] = {}
 
-    result:str = ''
+    result: str = ''
 
     for word in cleaned.split():
         if word in word_map:
@@ -20,6 +22,3 @@ def of(paragraph: str, banned: List[str] = []) -> str :
                 result = word
 
     return result
-    
-            
-

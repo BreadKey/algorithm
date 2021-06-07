@@ -15,18 +15,18 @@ def calculate(heights: List[int]) -> int:
             
             if not is_descending:
                 if valley[-1] >= valley[0]:
-                    answer += _trapping(valley)
+                    answer += _trap(valley)
                     valley = valley[-1:]
                     is_descending = True
                 elif valley[-1] < valley[-2]:
-                    answer += _trapping(valley[:-1])
+                    answer += _trap(valley[:-1])
                     valley = valley[-2:]
                     is_descending = True
 
 
     return answer
 
-def _trapping(deque: List[int]) -> int:
+def _trap(deque: List[int]) -> int:
     if len(deque) < 2:
         return 0
 

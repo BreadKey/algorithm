@@ -19,14 +19,18 @@ def _capture_vallies(heights: List[int]) -> List[List[int]]:
                     is_descending = False
 
             if not is_descending:
+                end_of_valley = None
+                
                 if valley[-1] >= valley[0]:
                     result.append(valley)
-                    valley = valley[-1:]
-                    is_descending = True
+                    end_of_valley = -1
 
                 elif valley[-1] < valley[-2]:
                     result.append(valley[:-1])
-                    valley = valley[-2:]
+                    end_of_valley = -2
+
+                if end_of_valley:
+                    valley = valley[end_of_valley:]
                     is_descending = True
 
     if len(valley) > 2:
@@ -36,13 +40,6 @@ def _capture_vallies(heights: List[int]) -> List[List[int]]:
 
 
 def _trap_water(valley: List[int]) -> int:
-    if len(valley) < 2:
-        return 0
-
     valley_height = min(valley[0], valley[-1])
-    count = 0
 
-    for index in range(1, len(valley) - 1):
-        count += valley_height - valley[index]
-
-    return count
+    return sum([valley_height - height for height in valley[1:-1]])

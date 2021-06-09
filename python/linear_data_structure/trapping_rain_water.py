@@ -20,7 +20,7 @@ def _capture_vallies(heights: List[int]) -> List[List[int]]:
 
             if not is_descending:
                 end_of_valley = None
-                
+
                 if valley[-1] >= valley[0]:
                     result.append(valley)
                     end_of_valley = -1
@@ -33,7 +33,7 @@ def _capture_vallies(heights: List[int]) -> List[List[int]]:
                     valley = valley[end_of_valley:]
                     is_descending = True
 
-    if len(valley) > 2:
+    if not is_descending and len(valley) > 2:
         result.append(valley)
 
     return result

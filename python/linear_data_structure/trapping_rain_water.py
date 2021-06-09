@@ -2,31 +2,37 @@ from typing import List
 
 
 def calculate(heights: List[int]) -> int:
-    answer = 0
-    valley = []
+    return sum([_trap_water(valley) for valley in _capture_vallies(heights)])
+
+
+def _capture_vallies(heights: List[int]) -> List[List[int]]:
+    result = []
     is_descending = True
+
+    valley = []
     for height in heights:
         valley.append(height)
 
         if len(valley) > 1:
             if is_descending:
-                if valley[-1] > valley[-2]:
+                if valley[-2] < valley[-1]:
                     is_descending = False
 
             if not is_descending:
                 if valley[-1] >= valley[0]:
-                    answer += _trap_water(valley)
+                    result.append(valley)
                     valley = valley[-1:]
                     is_descending = True
+
                 elif valley[-1] < valley[-2]:
-                    answer += _trap_water(valley[:-1])
+                    result.append(valley[:-1])
                     valley = valley[-2:]
                     is_descending = True
-    
-    if len(valley) > 2:
-        answer += _trap_water(valley)
 
-    return answer
+    if len(valley) > 2:
+        result.append(valley)
+
+    return result
 
 
 def _trap_water(valley: List[int]) -> int:

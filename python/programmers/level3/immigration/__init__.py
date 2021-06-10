@@ -2,7 +2,8 @@ from typing import List
 
 
 def solution(n: int, times: List[int]) -> int:
-    current_time = n * sum(times)
+    times.sort()
+    current_time = n * times[-1]
 
     step = current_time
 

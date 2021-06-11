@@ -4,26 +4,21 @@ from typing import List
 def solution(n: int, times: List[int]) -> int:
     times.sort()
     current_time = n * times[-1]
-
-    step = current_time
+    high = current_time
+    low = 0
 
     while True:
         passengers = sum([current_time // time for time in times])
 
-        step = max(1, step // 2)
-
-        if passengers > n:
-            if step == 1: break
-            current_time -= step
-        elif passengers < n:
-            current_time += step
+        if passengers >= n:
+            high = current_time
         else:
+            low = current_time
+
+        before = current_time
+        current_time = (high + low + 1) // 2
+
+        if before == current_time:
             break
 
-    while True:
-        current_time -= 1
-
-        passengers = sum([current_time // time for time in times])
-
-        if passengers < n:
-            return current_time + 1
+    return current_time

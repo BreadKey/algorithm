@@ -24,7 +24,7 @@ def solution(jobs: List[List[int]]) -> int:
 
 
 def _calculate_mean(jobs: List[List[int]]) -> int:
-    process_times: List[int] = []
+    total_time = 0
     time = 0
 
     for job in jobs:
@@ -35,6 +35,6 @@ def _calculate_mean(jobs: List[List[int]]) -> int:
             process_time = time - job[0] + job[1]
 
         time += job[1]
-        process_times.append(process_time)
+        total_time += process_time
 
-    return sum(process_times) // len(process_times)
+    return total_time // len(jobs)

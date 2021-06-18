@@ -4,21 +4,21 @@ from typing import List
 def solution(jobs: List[List[int]]) -> int:
     result: int = None
 
-    def make(current: List[List[int]], candidates: List[List[int]]):
-        if not candidates:
-            mean = _calculate_mean(current)
+    def schedule(scheduled: List[List[int]], jobs: List[List[int]]):
+        if not jobs:
+            mean = _calculate_mean(scheduled)
             nonlocal result
             result = mean if result is None else min(result, mean)
 
             return
 
-        for i in range(len(candidates)):
-            nextCandidates = candidates.copy()
-            nextCurrent = current.copy()
-            nextCurrent.append(nextCandidates.pop(i))
-            make(nextCurrent, nextCandidates)
+        for i in range(len(jobs)):
+            remain_jobs = jobs.copy()
+            next = scheduled.copy()
+            next.append(remain_jobs.pop(i))
+            schedule(next, remain_jobs)
 
-    make([], jobs)
+    schedule([], jobs)
 
     return result
 

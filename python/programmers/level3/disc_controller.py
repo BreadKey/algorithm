@@ -2,7 +2,26 @@ from typing import List
 
 
 def solution(jobs: List[List[int]]) -> int:
-    return _calculate_mean(jobs)
+    result: int = None
+
+    def make(current: List[List[int]], candidates: List[List[int]]):
+        if not candidates:
+            mean = _calculate_mean(current)
+            nonlocal result
+            result = mean if result is None else min(result, mean)
+
+            return
+
+        for i in range(len(candidates)):
+            nextCandidates = candidates.copy()
+            nextCurrent = current.copy()
+            nextCurrent.append(nextCandidates.pop(i))
+            make(nextCurrent, nextCandidates)
+
+    make([], jobs)
+
+    return result
+
 
 def _calculate_mean(jobs: List[List[int]]) -> int:
     process_times: List[int] = []

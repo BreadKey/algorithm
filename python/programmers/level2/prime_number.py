@@ -28,7 +28,6 @@ class Solution:
             next = copy.pop(i)
 
             self.check(int(f"{current or ''}{next}"), copy.copy())
-            self.check(current, copy.copy())
 
     # https://en.wikipedia.org/wiki/Primality_test
     def is_prime(self, n: int) -> bool:

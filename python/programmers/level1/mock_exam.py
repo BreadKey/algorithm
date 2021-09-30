@@ -32,7 +32,7 @@ def solution(answers) -> List[int]:
         Stupid([2, 1, 2, 3, 2, 4, 2, 5]),
         Stupid([3, 3, 1, 1, 2, 2, 4, 4, 5, 5])
     ]
-    corrects = [0, 0, 0]
+    corrects = [0 for _ in stupids]
 
     questions = [Question(i + 1, answer) for i, answer in enumerate(answers)]
 

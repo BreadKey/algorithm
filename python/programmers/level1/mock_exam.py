@@ -18,8 +18,8 @@ class Student:
 class Stupid(Student):
     pattern: List[int]
 
-    def __init__(self, answers: List[int]) -> None:
-        self.pattern = answers
+    def __init__(self, pattern: List[int]) -> None:
+        self.pattern = pattern
 
     def answer(self, question: Question) -> int:
         length = len(self.pattern)

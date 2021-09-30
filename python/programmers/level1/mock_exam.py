@@ -16,15 +16,15 @@ class Student:
 
 
 class Stupid(Student):
-    answers: List[int]
+    pattern: List[int]
 
     def __init__(self, answers: List[int]) -> None:
-        self.answers = answers
+        self.pattern = answers
 
     def answer(self, question: Question) -> int:
-        length = len(self.answers)
+        length = len(self.pattern)
         index = (question.number % length or length) - 1
-        return self.answers[index]
+        return self.pattern[index]
 
 def solution(answers) -> List[int]:
     stupids: List[Stupid] = [

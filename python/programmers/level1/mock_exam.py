@@ -11,6 +11,11 @@ class Question:
 
 
 class Student:
+    def answer(self, question: Question) -> int:
+        pass
+
+
+class Stupid(Student):
     answers: List[int]
 
     def __init__(self, answers: List[int]) -> None:
@@ -21,24 +26,12 @@ class Student:
         index = (question.number % length or length) - 1
         return self.answers[index]
 
-
-class Stupid1(Student):
-    def __init__(self) -> None:
-        super().__init__([1, 2, 3, 4, 5])
-
-
-class Stupid2(Student):
-    def __init__(self) -> None:
-        super().__init__([2, 1, 2, 3, 2, 4, 2, 5])
-
-
-class Stupid3(Student):
-    def __init__(self) -> None:
-        super().__init__([3, 3, 1, 1, 2, 2, 4, 4, 5, 5])
-
-
 def solution(answers) -> List[int]:
-    stupids: List[Student] = [Stupid1(), Stupid2(), Stupid3()]
+    stupids: List[Stupid] = [
+        Stupid([1, 2, 3, 4, 5]),
+        Stupid([2, 1, 2, 3, 2, 4, 2, 5]),
+        Stupid([3, 3, 1, 1, 2, 2, 4, 4, 5, 5])
+    ]
     corrects = [0, 0, 0]
 
     questions = [Question(i + 1, answer) for i, answer in enumerate(answers)]

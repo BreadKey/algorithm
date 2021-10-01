@@ -29,12 +29,11 @@ class Solution:
 
             self.check(int(f"{current or ''}{next}"), copy.copy())
 
-    """
-    _Source:
-        https://en.wikipedia.org/wiki/Primality_test
-    """
     def is_prime(self, n: int) -> bool:
-        """Primality test using 6k+-1 optimization."""
+        """
+        _Source:
+            https://en.wikipedia.org/wiki/Primality_test
+        """
         if n <= 3:
             return n > 1
         if n % 2 == 0 or n % 3 == 0:

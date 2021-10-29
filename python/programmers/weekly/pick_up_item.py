@@ -1,5 +1,7 @@
 from typing import List
 
+MAX_INT = 0xFFFFFFFF
+
 
 class Tile:
     space = 0
@@ -9,83 +11,64 @@ class Tile:
     bottom_right = 4
     top_left = 5
     top_right = 6
-    intersection = 7
-    item = 8
+    t = 7
+    t_90 = 8
+    t_180 = 9
+    t_270 = 10
+    item = 11
 
 
-def solution(rectangles: List[List[int]], character_x: int, character_y: int, item_x: int, item_y: int) -> int:
-    max_x = max(rectangles, key=lambda rectangle: rectangle[2])[2]
-    max_y = max(rectangles, key=lambda rectangle: rectangle[3])[3]
+class Rectangle:
+    top: int
+    bottom: int
+    left: int
+    right: int
 
-    path = [[Tile.space] * (max_x + 1) for _ in range(max_y + 1)]
+    def __init__(self, input) -> None:
+        self.top = input[3]
+        self.bottom = input[1]
+        self.left = input[0]
+        self.right = input[2]
+
+
+def solution(rectangle_inputs: List[List[int]], character_x: int, character_y: int, item_x: int, item_y: int) -> int:
+    rectangles = [Rectangle(input) for input in rectangle_inputs]
+
+    max_x = max(rectangles, key=lambda rectangle: rectangle.right).right
+    max_y = max(rectangles, key=lambda rectangle: rectangle.top).top
+
+    rectangle_map: List[List[List[Rectangle]]] = [
+        [[] for _ in range(max_x + 2)] for _ in range(max_y + 2)]
 
     for rectangle in rectangles:
-        add_rectangle(path, rectangle)
+        add_rectangle(rectangle_map, rectangle)
 
     for rectangle in rectangles:
-        remove_rectangle(path, rectangle)
+        clear_rectangle(rectangle_map, rectangle)
 
-    path[item_y][item_x] = Tile.item
+    rectangle_map = convert_path(rectangle_map)
 
-    walk_result: List[int] = []
+    print_path(rectangle_map)
 
-    up = character_y + 1
-    down = character_y - 1
-    left = character_x - 1
-    right = character_x + 1
-
-    if tile_at(path, character_x, up):
-        walk_result.append(walk(path, character_x, up, 0, 1, 1))
-
-    if tile_at(path, character_x, down):
-        walk_result.append(
-            walk(path, character_x, down,  0, -1, 1))
-
-    if tile_at(path, left, character_y):
-        walk_result.append(
-            walk(path, left, character_y, -1, 0, 1))
-
-    if tile_at(path, right, character_y):
-        walk_result.append(
-            walk(path, right, character_y, 1, 0, 1))
-
-    # print(walk_result)
-
-    return min(walk_result)
+    return 0  # walk(path, character_x, character_y)
 
 
-def add_rectangle(path: List[List[int]], rectangle: List[int]):
-    bottom = rectangle[1]
-    top = rectangle[3]
+def add_rectangle(rectangle_map: List[List[List[Rectangle]]], rectangle: Rectangle):
+    for x in range(rectangle.left, rectangle.right + 1):
+        rectangle_map[rectangle.top][x].append(rectangle)
+        if rectangle.bottom != rectangle.top:
+            rectangle_map[rectangle.bottom][x].append(rectangle)
 
-    left = rectangle[0]
-    right = rectangle[2]
-
-    for x in range(rectangle[0] + 1, rectangle[2]):
-        path[bottom][x] = Tile.intersection if path[bottom][x] else Tile.horizontal
-        if top != bottom:
-            path[top][x] = Tile.intersection if path[top][x] else Tile.horizontal
-
-    for y in range(rectangle[1] + 1, rectangle[3]):
-        path[y][left] = Tile.intersection if path[y][left] else Tile.vertical
-        if right != left:
-            path[y][right] = Tile.intersection if path[y][right] else Tile.vertical
-
-    path[bottom][left] = Tile.intersection if path[bottom][left] else Tile.bottom_left
-    path[bottom][right] = Tile.intersection if path[bottom][right] else Tile.bottom_right
-    path[top][left] = Tile.intersection if path[top][left] else Tile.top_left
-    path[top][right] = Tile.intersection if path[top][right] else Tile.top_right
+    for y in range(rectangle.bottom + 1, rectangle.top):
+        rectangle_map[y][rectangle.left].append(rectangle)
+        if rectangle.right != rectangle.left:
+            rectangle_map[y][rectangle.right].append(rectangle)
 
 
-def remove_rectangle(path: List[List[int]], rectangle: List[int]):
-    left = rectangle[0]
-    bottom = rectangle[1]
-    right = rectangle[2]
-    top = rectangle[3]
-
-    for x in range(left + 1, right):
-        for y in range(bottom + 1, top):
-            path[y][x] = Tile.space
+def clear_rectangle(rectangle_map: List[List[List[Rectangle]]], rectangle: Rectangle):
+    for x in range(rectangle.left + 1, rectangle.right):
+        for y in range(rectangle.bottom + 1, rectangle.top):
+            rectangle_map[y][x].clear()
 
 
 def print_path(path: List[List[int]], character: List[int] = None):
@@ -93,13 +76,15 @@ def print_path(path: List[List[int]], character: List[int] = None):
 
     for i in range(len(reverse)):
         y = len(reverse) - 1 - i
-        string = f'{y}'
-        for j in range(len(reverse[i])):
-            if character and character[0] == j and character[1] == y:
+        string = f'{y}\t'
+        for x in range(len(reverse[i])):
+            if character and character[0] == x and character[1] == y:
                 string += '★'
                 continue
 
-            value = reverse[i][j]
+            value = path[y][x]
+
+            # value = reverse[i][j]
             if value == Tile.space:
                 string += '□'
             elif value == Tile.horizontal:
@@ -114,102 +99,99 @@ def print_path(path: List[List[int]], character: List[int] = None):
                 string += '┏'
             elif value == Tile.top_right:
                 string += '┓'
-            elif value == Tile.intersection:
-                string += '╋'
+            elif value == Tile.t:
+                string += '┳'
+            elif value == Tile.t_90:
+                string += '┫'
+            elif value == Tile.t_180:
+                string += '┻'
+            elif value == Tile.t_270:
+                string += '┣'
             elif value == Tile.item:
                 string += '⊙'
         print(string)
 
 
-def walk(path: List[List[int]], character_x: int, character_y: int, step_x: int, step_y: int, step_count: int = 0):
-    tile = tile_at(path, character_x, character_y)
+def convert_path(rectangle_map: List[List[List[Rectangle]]]) -> List[List[int]]:
+    result = [[Tile.space] * len(rectangle_map[0]) for _ in rectangle_map]
+    for x in range(len(rectangle_map[0])):
+        for y in range(len(rectangle_map)):
+            result[y][x] = convert(rectangle_map[y][x], x, y)
 
-    print(f"Step: {step_count}")
-    print_path(path, [character_x, character_y])
-
-    if step_count == 20:
-        return
-
-    if tile == Tile.item:
-        return step_count
-
-    if tile in [Tile.bottom_left, Tile.top_left]:
-        if step_x == 0:
-            return walk(path, character_x + 1, character_y, 1, 0, step_count + 1)
-        else:
-            next_step_y = 1 if tile == Tile.bottom_left else -1
-            return walk(path, character_x, character_y +
-                        next_step_y, 0, next_step_y, step_count + 1)
-
-    elif tile in [Tile.bottom_right, Tile.top_right]:
-        if step_x == 0:
-            return walk(path, character_x - 1, character_y, -1, 0, step_count + 1)
-        else:
-            next_step_y = 1 if tile == Tile.bottom_right else -1
-            return walk(path, character_x, character_y +
-                        next_step_y, 0, next_step_y, step_count + 1)
-
-    elif tile == Tile.intersection:
-        walk_result = []
-
-        if step_x != 0:
-            down_tile = tile_at(path, character_x, character_y - 1)
-            up_tile = tile_at(path, character_x, character_y + 1)
-
-            if down_tile not in [Tile.space, Tile.intersection, Tile.horizontal]:
-                walk_result.append(
-                    walk(path, character_x, character_y - 1, 0, -1, step_count + 1))
-            if up_tile not in [Tile.space, Tile.intersection, Tile.horizontal]:
-                walk_result.append(
-                    walk(path, character_x, character_y + 1, 0, 1, step_count + 1)
-                )
-
-            if not walk_result:
-                if down_tile not in [Tile.space, Tile.horizontal]:
-                    walk_result.append(
-                        walk(path, character_x, character_y - 1, 0, -1, step_count + 1))
-                if up_tile not in [Tile.space, Tile.horizontal]:
-                    walk_result.append(
-                        walk(path, character_x, character_y +
-                             1, 0, 1, step_count + 1)
-                    )
-
-        else:
-            left_tile = tile_at(path, character_x - 1, character_y)
-            right_tile = tile_at(path, character_x + 1, character_y)
-
-            if left_tile not in [Tile.space, Tile.intersection, Tile.vertical]:
-                walk_result.append(
-                    walk(path, character_x - 1,
-                         character_y, -1, 0, step_count + 1)
-                )
-            if right_tile not in [Tile.space, Tile.intersection, Tile.vertical]:
-                walk_result.append(
-                    walk(path, character_x + 1, character_y, 1, 0, step_count + 1)
-                )
-
-            if not walk_result:
-                if left_tile not in [Tile.space, Tile.vertical]:
-                    walk_result.append(
-                        walk(path, character_x - 1,
-                             character_y, -1, 0, step_count + 1)
-                    )
-                if right_tile not in [Tile.space, Tile.vertical]:
-                    walk_result.append(
-                        walk(path, character_x + 1,
-                             character_y, 1, 0, step_count + 1)
-                    )
-
-        if walk_result:
-            return min(walk_result)
-
-    if tile_at(path, character_x + step_x, character_y + step_y):
-        return walk(path, character_x + step_x, character_y + step_y, step_x, step_y, step_count + 1)
-    return walk(path, character_x - step_x, character_y - step_y, -step_x, -step_y, step_count + 1)
+    return result
 
 
-def tile_at(path: List[List[int]], x: int, y: int) -> int:
-    if x not in range(len(path[0])) or y not in range(len(path)):
+def convert(rectangles: List[Rectangle], x: int, y: int) -> int:
+    if not rectangles:
         return Tile.space
 
-    return path[y][x]
+    length = len(rectangles)
+
+    if length == 1:
+        rectangle = rectangles[0]
+
+        if rectangle.left == rectangle.right:
+            return Tile.vertical
+        elif rectangle.top == rectangle.bottom:
+            return Tile.horizontal
+        elif x == rectangle.left and y == rectangle.top:
+            return Tile.top_left
+        elif x == rectangle.right and y == rectangle.top:
+            return Tile.top_right
+        elif x == rectangle.left and y == rectangle.bottom:
+            return Tile.bottom_left
+        elif x == rectangle.right and y == rectangle.bottom:
+            return Tile.bottom_right
+        elif x in [rectangle.left, rectangle.right]:
+            return Tile.vertical
+        elif y in [rectangle.top, rectangle.bottom]:
+            return Tile.horizontal
+
+    else:
+        up = 0
+        down = 1
+        left = 2
+        right = 3
+        connected_map = [False, False, False, False]
+
+        if y in [rectangle.top for rectangle in rectangles]:
+            connected_map[up] = True
+
+            if x in [rectangle.left for rectangle in rectangles]:
+                connected_map[left] = True
+
+            if x in [rectangle.right for rectangle in rectangles]:
+                connected_map[right] = True
+
+        if y in [rectangle.bottom for rectangle in rectangles]:
+            connected_map[down] = True
+
+            if x in [rectangle.left for rectangle in rectangles]:
+                connected_map[left] = True
+
+            if x in [rectangle.right for rectangle in rectangles]:
+                connected_map[right] = True
+
+        if sum(connected_map) == 3:
+            if connected_map[up] and connected_map[left] and connected_map[right]:
+                return Tile.t_180
+            if connected_map[down] and connected_map[left] and connected_map[right]:
+                return Tile.t
+            if connected_map[up] and connected_map[down] and connected_map[left]:
+                return Tile.t_90
+            else:
+                return Tile.t_270
+
+        else:
+            if connected_map[up]:
+                if connected_map[left]:
+                    return Tile.bottom_right
+                else:
+                    return Tile.bottom_left
+            else:
+                if connected_map[left]:
+                    return Tile.top_right
+                else:
+                    return Tile.top_left
+
+    return Tile.space

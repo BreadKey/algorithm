@@ -1,21 +1,20 @@
-from typing import List
+from typing import List, Tuple
+from enum import Enum, auto
 
-MAX_INT = 0xFFFFFFFF
 
-
-class Tile:
-    space = 0
-    horizontal = 1
-    vertical = 2
-    bottom_left = 3
-    bottom_right = 4
-    top_left = 5
-    top_right = 6
-    t = 7
-    t_90 = 8
-    t_180 = 9
-    t_270 = 10
-    item = 11
+class Tile(Enum):
+    space = None
+    horizontal = auto()
+    vertical = auto()
+    bottom_left = auto()
+    bottom_right = auto()
+    top_left = auto()
+    top_right = auto()
+    t = auto()
+    t_90 = auto()
+    t_180 = auto()
+    t_270 = auto()
+    item = auto()
 
 
 class Rectangle:
@@ -46,11 +45,11 @@ def solution(rectangle_inputs: List[List[int]], character_x: int, character_y: i
     for rectangle in rectangles:
         clear_rectangle(rectangle_map, rectangle)
 
-    rectangle_map = convert_path(rectangle_map)
+    path = to_path(rectangle_map)
 
-    print_path(rectangle_map)
+    path[item_y][item_x] = Tile.item
 
-    return 0  # walk(path, character_x, character_y)
+    return walk(path, character_x, character_y)
 
 
 def add_rectangle(rectangle_map: List[List[List[Rectangle]]], rectangle: Rectangle):
@@ -71,57 +70,16 @@ def clear_rectangle(rectangle_map: List[List[List[Rectangle]]], rectangle: Recta
             rectangle_map[y][x].clear()
 
 
-def print_path(path: List[List[int]], character: List[int] = None):
-    reverse = list(reversed(path))
-
-    for i in range(len(reverse)):
-        y = len(reverse) - 1 - i
-        string = f'{y}\t'
-        for x in range(len(reverse[i])):
-            if character and character[0] == x and character[1] == y:
-                string += '★'
-                continue
-
-            value = path[y][x]
-
-            # value = reverse[i][j]
-            if value == Tile.space:
-                string += '□'
-            elif value == Tile.horizontal:
-                string += '━'
-            elif value == Tile.vertical:
-                string += '┃'
-            elif value == Tile.bottom_left:
-                string += '┗'
-            elif value == Tile.bottom_right:
-                string += '┛'
-            elif value == Tile.top_left:
-                string += '┏'
-            elif value == Tile.top_right:
-                string += '┓'
-            elif value == Tile.t:
-                string += '┳'
-            elif value == Tile.t_90:
-                string += '┫'
-            elif value == Tile.t_180:
-                string += '┻'
-            elif value == Tile.t_270:
-                string += '┣'
-            elif value == Tile.item:
-                string += '⊙'
-        print(string)
-
-
-def convert_path(rectangle_map: List[List[List[Rectangle]]]) -> List[List[int]]:
+def to_path(rectangle_map: List[List[List[Rectangle]]]) -> List[List[Tile]]:
     result = [[Tile.space] * len(rectangle_map[0]) for _ in rectangle_map]
     for x in range(len(rectangle_map[0])):
         for y in range(len(rectangle_map)):
-            result[y][x] = convert(rectangle_map[y][x], x, y)
+            result[y][x] = to_tile(rectangle_map[y][x], x, y)
 
     return result
 
 
-def convert(rectangles: List[Rectangle], x: int, y: int) -> int:
+def to_tile(rectangles: List[Rectangle], x: int, y: int) -> Tile:
     if not rectangles:
         return Tile.space
 
@@ -152,46 +110,109 @@ def convert(rectangles: List[Rectangle], x: int, y: int) -> int:
         down = 1
         left = 2
         right = 3
-        connected_map = [False, False, False, False]
+        opened = [False, False, False, False]
 
         if y in [rectangle.top for rectangle in rectangles]:
-            connected_map[up] = True
+            opened[up] = True
 
             if x in [rectangle.left for rectangle in rectangles]:
-                connected_map[left] = True
+                opened[left] = True
 
             if x in [rectangle.right for rectangle in rectangles]:
-                connected_map[right] = True
+                opened[right] = True
 
         if y in [rectangle.bottom for rectangle in rectangles]:
-            connected_map[down] = True
+            opened[down] = True
 
             if x in [rectangle.left for rectangle in rectangles]:
-                connected_map[left] = True
+                opened[left] = True
 
             if x in [rectangle.right for rectangle in rectangles]:
-                connected_map[right] = True
+                opened[right] = True
 
-        if sum(connected_map) == 3:
-            if connected_map[up] and connected_map[left] and connected_map[right]:
+        if sum(opened) == 3:
+            if opened[up] and opened[left] and opened[right]:
                 return Tile.t_180
-            if connected_map[down] and connected_map[left] and connected_map[right]:
+            if opened[down] and opened[left] and opened[right]:
                 return Tile.t
-            if connected_map[up] and connected_map[down] and connected_map[left]:
+            if opened[up] and opened[down] and opened[left]:
                 return Tile.t_90
             else:
                 return Tile.t_270
 
         else:
-            if connected_map[up]:
-                if connected_map[left]:
+            if opened[up]:
+                if opened[left]:
                     return Tile.bottom_right
                 else:
                     return Tile.bottom_left
             else:
-                if connected_map[left]:
+                if opened[left]:
                     return Tile.top_right
                 else:
                     return Tile.top_left
 
     return Tile.space
+
+
+def walk(path: List[List[Tile]], character_x: int, character_y: int, step_count=0, log: List[Tuple[int, int]] = []) -> int:
+    tile = path[character_y][character_x]
+
+    if path[character_y][character_x] == Tile.item:
+        return step_count
+
+    if tile in [Tile.t, Tile.t_90, Tile.t_180, Tile.t_270]:
+        tile = t_to_corner(tile, character_x, character_y, log)
+
+    next_points = get_opened_points(tile, character_x, character_y)
+    next_points = list(
+        filter(lambda point: path[point[1]][point[0]] and (not log or log[-1] != point), next_points))
+
+    result = []
+    for next_point in next_points:
+        log.append((character_x, character_y))
+        result.append(walk(
+            path, next_point[0], next_point[1], step_count + 1, log.copy() if len(next_points) > 1 else log))
+
+    if not next_points:
+        log.append((character_x, character_y))
+        return walk(path, log[-2][0], log[-2][1], step_count + 1, log)
+
+    return min(result)
+
+
+def t_to_corner(t: Tile, x: int, y: int, log: List[Tuple[int, int]]) -> Tile:
+    if t == Tile.t:
+        if x - log[-1][0] == 1:
+            return Tile.top_right
+        elif x - log[-1][0] == -1:
+            return Tile.top_left
+
+    elif t == Tile.t_180:
+        if x - log[-1][0] == 1:
+            return Tile.bottom_right
+        elif x - log[-1][0] == -1:
+            return Tile.bottom_left
+
+
+def get_x(point: Tuple[int, int]) -> int: return point[0]
+def get_y(point: Tuple[int, int]) -> int: return point[1]
+
+def get_opened_points(tile: Tile, x: int, y: int) -> List[Tuple[int, int]]:
+    if tile == Tile.horizontal:
+        return [(x - 1, y), (x + 1, y)]
+
+    elif tile == Tile.vertical:
+        return [(x, y - 1), (x, y + 1)]
+
+    elif tile == Tile.top_left:
+        return [(x + 1, y), (x, y - 1)]
+
+    elif tile == Tile.top_right:
+        return [(x - 1, y), (x, y - 1)]
+
+    elif tile == Tile.bottom_left:
+        return [(x + 1, y), (x, y + 1)]
+
+    elif tile == Tile.bottom_right:
+        return [(x - 1, y), (x, y + 1)]
